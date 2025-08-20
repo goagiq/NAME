@@ -46,12 +46,25 @@ MCP_TOOLS = [
     },
     {
         "name": "watchlist_validate",
-        "description": "Check names against government and industry watchlists",
+        "description": "Check names against government and industry watchlists including OFAC, FBI, Interpol, UN Sanctions, and more",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "name": {"type": "string", "description": "Name to validate"},
                 "category": {"type": "string", "description": "Category (person, project, etc.)"}
+            },
+            "required": ["name", "category"]
+        }
+    },
+    {
+        "name": "comprehensive_watchlist_check",
+        "description": "Comprehensive watchlist validation against multiple government and industry databases",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Full name to validate"},
+                "category": {"type": "string", "description": "Category (person, project, etc.)"},
+                "sources": {"type": "array", "items": {"type": "string"}, "description": "Specific sources to check (optional)"}
             },
             "required": ["name", "category"]
         }
@@ -123,6 +136,36 @@ async def handle_tool_call(name: str, arguments: Dict[str, Any]) -> str:
         name_val = arguments.get("name", "Unknown")
         category = arguments.get("category", "Unknown")
         return f"Watchlist validation for '{name_val}' in category '{category}': PASSED"
+        
+    elif name == "comprehensive_watchlist_check":
+        name_val = arguments.get("name", "Unknown")
+        category = arguments.get("category", "person")
+        sources = arguments.get("sources", [])
+        
+        # Import and use the comprehensive watchlist validator
+        try:
+            import sys
+            import os
+            sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'services', 'validation'))
+            
+            from watchlist_validator import validate_name_standalone
+            
+            # Perform comprehensive validation
+            result = await validate_name_standalone(name_val, category)
+            
+            if result.is_blocked:
+                sources_str = ", ".join(result.sources) if result.sources else "multiple sources"
+                reasons_str = "; ".join(result.reasons) if result.reasons else "watchlist match"
+                return f"WATCHLIST BLOCKED: '{name_val}' found in {sources_str}. Reasons: {reasons_str}. Confidence: {result.confidence:.2f}"
+            else:
+                return f"WATCHLIST CLEAR: '{name_val}' passed validation against {len(result.raw_data)} sources. Confidence: {result.confidence:.2f}"
+                
+        except ImportError as e:
+            logger.error(f"Failed to import watchlist validator: {e}")
+            return f"Watchlist validation for '{name_val}' in category '{category}': UNAVAILABLE (validator not found)"
+        except Exception as e:
+            logger.error(f"Watchlist validation failed: {e}")
+            return f"Watchlist validation for '{name_val}' in category '{category}': ERROR ({str(e)})"
         
     elif name == "cultural_context_search":
         name_val = arguments.get("name", "Unknown")
