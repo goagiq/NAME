@@ -210,6 +210,170 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ## 🧪 Testing
 
+### True Positive Watchlist Validation Test
+
+The system includes comprehensive testing for watchlist validation with known problematic names to ensure proper filtering and traceability.
+
+```mermaid
+graph TB
+    subgraph "True Positive Test Method"
+        START([Start True Positive Test]) --> INIT[Initialize WatchlistValidator]
+        INIT --> TEST_NAMES[Define Test Names]
+        
+        subgraph "Test Names Selection"
+            TEST_NAMES --> NAME1[Osama bin Laden<br/>Expected: OFAC SDN, FBI Most Wanted]
+            TEST_NAMES --> NAME2[Saddam Hussein<br/>Expected: OFAC SDN, UN Sanctions]
+            TEST_NAMES --> NAME3[Kim Jong-un<br/>Expected: UN Sanctions, OFAC SDN]
+            TEST_NAMES --> NAME4[Vladimir Putin<br/>Expected: EU Sanctions, UK Sanctions]
+            TEST_NAMES --> NAME5[Ted Bundy<br/>Expected: Radford DB, MAP]
+        end
+        
+        NAME1 --> VALIDATE1[Validate Name 1]
+        NAME2 --> VALIDATE2[Validate Name 2]
+        NAME3 --> VALIDATE3[Validate Name 3]
+        NAME4 --> VALIDATE4[Validate Name 4]
+        NAME5 --> VALIDATE5[Validate Name 5]
+        
+        subgraph "Validation Process"
+            VALIDATE1 --> CACHE1{Check Cache}
+            VALIDATE2 --> CACHE2{Check Cache}
+            VALIDATE3 --> CACHE3{Check Cache}
+            VALIDATE4 --> CACHE4{Check Cache}
+            VALIDATE5 --> CACHE5{Check Cache}
+            
+            CACHE1 -->|Cache Hit| RESULT1[Return Cached Result]
+            CACHE2 -->|Cache Hit| RESULT2[Return Cached Result]
+            CACHE3 -->|Cache Hit| RESULT3[Return Cached Result]
+            CACHE4 -->|Cache Hit| RESULT4[Return Cached Result]
+            CACHE5 -->|Cache Hit| RESULT5[Return Cached Result]
+            
+            CACHE1 -->|Cache Miss| SOURCES1[Check 17 Sources]
+            CACHE2 -->|Cache Miss| SOURCES2[Check 17 Sources]
+            CACHE3 -->|Cache Miss| SOURCES3[Check 17 Sources]
+            CACHE4 -->|Cache Miss| SOURCES4[Check 17 Sources]
+            CACHE5 -->|Cache Miss| SOURCES5[Check 17 Sources]
+            
+            subgraph "Validation Sources"
+                SOURCES1 --> API1[API Calls]
+                SOURCES2 --> API2[API Calls]
+                SOURCES3 --> API3[API Calls]
+                SOURCES4 --> API4[API Calls]
+                SOURCES5 --> API5[API Calls]
+                
+                API1 --> SOURCE_LIST1[OFAC SDN, FBI, Interpol,<br/>UN Sanctions, EU Sanctions,<br/>UK Sanctions, Canada Sanctions,<br/>TSA No Fly, FINRA, Sex Offender,<br/>Dru Sjodin NSOPW, MAP,<br/>Radford DB, World-Check,<br/>Dow Jones, Public Records,<br/>Social Media]
+                API2 --> SOURCE_LIST2[Same 17 Sources]
+                API3 --> SOURCE_LIST3[Same 17 Sources]
+                API4 --> SOURCE_LIST4[Same 17 Sources]
+                API5 --> SOURCE_LIST5[Same 17 Sources]
+            end
+            
+            SOURCE_LIST1 --> AGGREGATE1[Aggregate Results]
+            SOURCE_LIST2 --> AGGREGATE2[Aggregate Results]
+            SOURCE_LIST3 --> AGGREGATE3[Aggregate Results]
+            SOURCE_LIST4 --> AGGREGATE4[Aggregate Results]
+            SOURCE_LIST5 --> AGGREGATE5[Aggregate Results]
+            
+            AGGREGATE1 --> STORE1[Store in Cache]
+            AGGREGATE2 --> STORE2[Store in Cache]
+            AGGREGATE3 --> STORE3[Store in Cache]
+            AGGREGATE4 --> STORE4[Store in Cache]
+            AGGREGATE5 --> STORE5[Store in Cache]
+            
+            STORE1 --> RESULT1
+            STORE2 --> RESULT2
+            STORE3 --> RESULT3
+            STORE4 --> RESULT4
+            STORE5 --> RESULT5
+        end
+        
+        RESULT1 --> ANALYZE1[Analyze Results]
+        RESULT2 --> ANALYZE2[Analyze Results]
+        RESULT3 --> ANALYZE3[Analyze Results]
+        RESULT4 --> ANALYZE4[Analyze Results]
+        RESULT5 --> ANALYZE5[Analyze Results]
+        
+        subgraph "Result Analysis"
+            ANALYZE1 --> CHECK1{Is Blocked?}
+            ANALYZE2 --> CHECK2{Is Blocked?}
+            ANALYZE3 --> CHECK3{Is Blocked?}
+            ANALYZE4 --> CHECK4{Is Blocked?}
+            ANALYZE5 --> CHECK5{Is Blocked?}
+            
+            CHECK1 -->|Yes| BLOCKED1[✅ BLOCKED<br/>Sources: OFAC SDN, FBI<br/>Confidence: 0.95]
+            CHECK2 -->|Yes| BLOCKED2[✅ BLOCKED<br/>Sources: OFAC SDN, UN<br/>Confidence: 0.90]
+            CHECK3 -->|Yes| BLOCKED3[✅ BLOCKED<br/>Sources: UN, OFAC, EU<br/>Confidence: 0.92]
+            CHECK4 -->|Yes| BLOCKED4[✅ BLOCKED<br/>Sources: EU, UK, Canada<br/>Confidence: 0.88]
+            CHECK5 -->|Yes| BLOCKED5[✅ BLOCKED<br/>Sources: Radford, MAP<br/>Confidence: 0.95]
+            
+            CHECK1 -->|No| CLEAR1[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
+            CHECK2 -->|No| CLEAR2[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
+            CHECK3 -->|No| CLEAR3[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
+            CHECK4 -->|No| CLEAR4[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
+            CHECK5 -->|No| CLEAR5[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
+        end
+        
+        BLOCKED1 --> COLLECT[Collect All Results]
+        BLOCKED2 --> COLLECT
+        BLOCKED3 --> COLLECT
+        BLOCKED4 --> COLLECT
+        BLOCKED5 --> COLLECT
+        CLEAR1 --> COLLECT
+        CLEAR2 --> COLLECT
+        CLEAR3 --> COLLECT
+        CLEAR4 --> COLLECT
+        CLEAR5 --> COLLECT
+    end
+    
+    subgraph "Traceability Report Generation"
+        COLLECT --> STATS[Calculate Statistics]
+        STATS --> DETAILED[Generate Detailed Results]
+        DETAILED --> SOURCE_ANALYSIS[Source Effectiveness Analysis]
+        SOURCE_ANALYSIS --> SAVE_JSON[Save JSON Report]
+        SAVE_JSON --> CONCLUSION[Generate Conclusion]
+    end
+    
+    subgraph "Expected vs Actual Results"
+        CONCLUSION --> COMPARE{Compare Results}
+        COMPARE -->|Mock Test| SUCCESS[✅ SUCCESS<br/>5/5 Blocked (100%)<br/>High Confidence Matches]
+        COMPARE -->|Real Test| ISSUES[⚠️ ISSUES<br/>0/5 Blocked (0%)<br/>API Access Problems]
+    end
+    
+    SUCCESS --> RECOMMEND[Implementation Recommendations]
+    ISSUES --> RECOMMEND
+    
+    RECOMMEND --> END([End Test])
+    
+    style START fill:#e1f5fe
+    style END fill:#e8f5e8
+    style SUCCESS fill:#c8e6c9
+    style ISSUES fill:#ffcdd2
+    style BLOCKED1 fill:#c8e6c9
+    style BLOCKED2 fill:#c8e6c9
+    style BLOCKED3 fill:#c8e6c9
+    style BLOCKED4 fill:#c8e6c9
+    style BLOCKED5 fill:#c8e6c9
+    style CLEAR1 fill:#ffcdd2
+    style CLEAR2 fill:#ffcdd2
+    style CLEAR3 fill:#ffcdd2
+    style CLEAR4 fill:#ffcdd2
+    style CLEAR5 fill:#ffcdd2
+```
+
+#### Run True Positive Tests
+```bash
+# Run real API test (requires API keys)
+python test_true_positive_watchlist.py
+
+# Run mock test (demonstrates expected behavior)
+python test_mock_true_positive.py
+```
+
+#### Test Results
+- **Mock Test**: 100% success rate (5/5 names blocked)
+- **Real Test**: 0% success rate (API access limitations)
+- **Traceability**: Complete audit trail with JSON reports
+- **Source Analysis**: Effectiveness metrics for all 17 sources
+
 ### Run All Tests
 ```bash
 python -m pytest tests/
