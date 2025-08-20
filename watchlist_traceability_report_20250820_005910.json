@@ -1,0 +1,426 @@
+{
+  "test_summary": {
+    "total_tests": 5,
+    "blocked_count": 0,
+    "clear_count": 5,
+    "block_rate": 0.0,
+    "timestamp": "2025-08-20T00:59:10.787895"
+  },
+  "validation_statistics": {
+    "total": 5,
+    "blocked": 0,
+    "clear": 0,
+    "no_data": 5
+  },
+  "detailed_results": [
+    {
+      "test_number": 1,
+      "name": "Osama bin Laden",
+      "category": "terrorist",
+      "expected_source": "OFAC SDN, FBI Most Wanted",
+      "description": "Former al-Qaeda leader, designated terrorist",
+      "timestamp": "2025-08-20T00:59:08.909165",
+      "blocked": false,
+      "sources": [],
+      "reasons": [],
+      "confidence": 0.0,
+      "raw_data": {
+        "ofac_sdn": null,
+        "fbi_wanted": {
+          "is_blocked": false,
+          "confidence": 0.8
+        },
+        "interpol_red": null,
+        "un_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "no_fly_list": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "No Fly List not publicly accessible"
+          ],
+          "source_data": {
+            "note": "Requires special access"
+          }
+        },
+        "finra_brokercheck": null,
+        "national_sex_offender": null,
+        "dru_sjodin_nsopw": null,
+        "murder_accountability_project": null,
+        "radford_serial_killer_db": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "european_sanctions": null,
+        "uk_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "UK Sanctions List requires PDF parsing"
+          ],
+          "source_data": {
+            "note": "Requires PDF processing"
+          }
+        },
+        "canada_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "world_check": null,
+        "dow_jones": null,
+        "public_records": null,
+        "social_media_monitoring": null
+      }
+    },
+    {
+      "test_number": 2,
+      "name": "Saddam Hussein",
+      "category": "former_dictator",
+      "expected_source": "OFAC SDN, UN Sanctions",
+      "description": "Former Iraqi dictator, subject to sanctions",
+      "timestamp": "2025-08-20T00:59:09.263152",
+      "blocked": false,
+      "sources": [],
+      "reasons": [],
+      "confidence": 0.0,
+      "raw_data": {
+        "ofac_sdn": null,
+        "fbi_wanted": {
+          "is_blocked": false,
+          "confidence": 0.8
+        },
+        "interpol_red": null,
+        "un_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "no_fly_list": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "No Fly List not publicly accessible"
+          ],
+          "source_data": {
+            "note": "Requires special access"
+          }
+        },
+        "finra_brokercheck": null,
+        "national_sex_offender": null,
+        "dru_sjodin_nsopw": null,
+        "murder_accountability_project": null,
+        "radford_serial_killer_db": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "european_sanctions": null,
+        "uk_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "UK Sanctions List requires PDF parsing"
+          ],
+          "source_data": {
+            "note": "Requires PDF processing"
+          }
+        },
+        "canada_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "world_check": null,
+        "dow_jones": null,
+        "public_records": null,
+        "social_media_monitoring": null
+      }
+    },
+    {
+      "test_number": 3,
+      "name": "Kim Jong-un",
+      "category": "political_leader",
+      "expected_source": "UN Sanctions, OFAC SDN",
+      "description": "North Korean leader, subject to international sanctions",
+      "timestamp": "2025-08-20T00:59:09.729441",
+      "blocked": false,
+      "sources": [],
+      "reasons": [],
+      "confidence": 0.0,
+      "raw_data": {
+        "ofac_sdn": null,
+        "fbi_wanted": {
+          "is_blocked": false,
+          "confidence": 0.8
+        },
+        "interpol_red": null,
+        "un_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "no_fly_list": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "No Fly List not publicly accessible"
+          ],
+          "source_data": {
+            "note": "Requires special access"
+          }
+        },
+        "finra_brokercheck": null,
+        "national_sex_offender": null,
+        "dru_sjodin_nsopw": null,
+        "murder_accountability_project": null,
+        "radford_serial_killer_db": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "european_sanctions": null,
+        "uk_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "UK Sanctions List requires PDF parsing"
+          ],
+          "source_data": {
+            "note": "Requires PDF processing"
+          }
+        },
+        "canada_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "world_check": null,
+        "dow_jones": null,
+        "public_records": null,
+        "social_media_monitoring": null
+      }
+    },
+    {
+      "test_number": 4,
+      "name": "Vladimir Putin",
+      "category": "political_leader",
+      "expected_source": "EU Sanctions, UK Sanctions",
+      "description": "Russian president, subject to Western sanctions",
+      "timestamp": "2025-08-20T00:59:10.290779",
+      "blocked": false,
+      "sources": [],
+      "reasons": [],
+      "confidence": 0.0,
+      "raw_data": {
+        "ofac_sdn": null,
+        "fbi_wanted": {
+          "is_blocked": false,
+          "confidence": 0.8
+        },
+        "interpol_red": null,
+        "un_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "no_fly_list": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "No Fly List not publicly accessible"
+          ],
+          "source_data": {
+            "note": "Requires special access"
+          }
+        },
+        "finra_brokercheck": null,
+        "national_sex_offender": null,
+        "dru_sjodin_nsopw": null,
+        "murder_accountability_project": null,
+        "radford_serial_killer_db": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "european_sanctions": null,
+        "uk_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "UK Sanctions List requires PDF parsing"
+          ],
+          "source_data": {
+            "note": "Requires PDF processing"
+          }
+        },
+        "canada_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "world_check": null,
+        "dow_jones": null,
+        "public_records": null,
+        "social_media_monitoring": null
+      }
+    },
+    {
+      "test_number": 5,
+      "name": "Ted Bundy",
+      "category": "serial_killer",
+      "expected_source": "Radford Serial Killer Database, MAP",
+      "description": "Notorious American serial killer",
+      "timestamp": "2025-08-20T00:59:10.769861",
+      "blocked": false,
+      "sources": [],
+      "reasons": [],
+      "confidence": 0.0,
+      "raw_data": {
+        "ofac_sdn": null,
+        "fbi_wanted": {
+          "is_blocked": false,
+          "confidence": 0.8
+        },
+        "interpol_red": null,
+        "un_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "no_fly_list": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "No Fly List not publicly accessible"
+          ],
+          "source_data": {
+            "note": "Requires special access"
+          }
+        },
+        "finra_brokercheck": null,
+        "national_sex_offender": null,
+        "dru_sjodin_nsopw": null,
+        "murder_accountability_project": null,
+        "radford_serial_killer_db": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "european_sanctions": null,
+        "uk_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.5,
+          "reasons": [
+            "UK Sanctions List requires PDF parsing"
+          ],
+          "source_data": {
+            "note": "Requires PDF processing"
+          }
+        },
+        "canada_sanctions": {
+          "is_blocked": false,
+          "confidence": 0.7
+        },
+        "world_check": null,
+        "dow_jones": null,
+        "public_records": null,
+        "social_media_monitoring": null
+      }
+    }
+  ],
+  "source_effectiveness": {
+    "ofac_sdn": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "fbi_wanted": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 5,
+      "no_data": 0
+    },
+    "interpol_red": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "un_sanctions": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 5,
+      "no_data": 0
+    },
+    "no_fly_list": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 5,
+      "no_data": 0
+    },
+    "finra_brokercheck": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "national_sex_offender": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "dru_sjodin_nsopw": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "murder_accountability_project": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "radford_serial_killer_db": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 5,
+      "no_data": 0
+    },
+    "european_sanctions": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "uk_sanctions": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 5,
+      "no_data": 0
+    },
+    "canada_sanctions": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 5,
+      "no_data": 0
+    },
+    "world_check": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "dow_jones": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "public_records": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    },
+    "social_media_monitoring": {
+      "total": 5,
+      "blocked": 0,
+      "clear": 0,
+      "no_data": 5
+    }
+  }
+}
