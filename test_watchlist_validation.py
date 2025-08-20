@@ -167,7 +167,10 @@ def print_validation_sources():
             "FINRA BrokerCheck"
         ],
         "Law Enforcement": [
-            "National Sex Offender Registry"
+            "National Sex Offender Registry",
+            "Dru Sjodin National Sex Offender Public Website (NSOPW)",
+            "Murder Accountability Project (MAP)",
+            "Radford/FGCU Serial Killer Database"
         ],
         "Industry Watchlists": [
             "World-Check (Thomson Reuters)",

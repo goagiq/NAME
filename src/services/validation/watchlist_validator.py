@@ -106,6 +106,24 @@ class WatchlistValidator:
                 api_key_required=False,
                 rate_limit=10
             ),
+            "dru_sjodin_nsopw": ValidationSource(
+                name="Dru Sjodin National Sex Offender Public Website (NSOPW)",
+                url="https://www.nsopw.gov/api/search",
+                api_key_required=False,
+                rate_limit=10
+            ),
+            "murder_accountability_project": ValidationSource(
+                name="Murder Accountability Project (MAP)",
+                url="https://www.murderdata.org/api/search",
+                api_key_required=False,
+                rate_limit=5
+            ),
+            "radford_serial_killer_db": ValidationSource(
+                name="Radford/FGCU Serial Killer Database",
+                url="https://www.radford.edu/content/csat/home/radford-serial-killer-database.html",
+                api_key_required=False,
+                rate_limit=5
+            ),
             
             # International Databases
             "european_sanctions": ValidationSource(
@@ -364,6 +382,12 @@ class WatchlistValidator:
                 return await self._check_no_fly_list(name, source)
             elif source_name == "national_sex_offender":
                 return await self._check_sex_offender(name, source)
+            elif source_name == "dru_sjodin_nsopw":
+                return await self._check_dru_sjodin_nsopw(name, source)
+            elif source_name == "murder_accountability_project":
+                return await self._check_murder_accountability_project(name, source)
+            elif source_name == "radford_serial_killer_db":
+                return await self._check_radford_serial_killer_db(name, source)
             elif source_name == "european_sanctions":
                 return await self._check_eu_sanctions(name, source)
             elif source_name == "uk_sanctions":
@@ -538,6 +562,91 @@ class WatchlistValidator:
                     
         except Exception as e:
             logger.error(f"Sex Offender check failed: {e}")
+            return None
+    
+    async def _check_dru_sjodin_nsopw(self, name: str, source: ValidationSource) -> Optional[Dict]:
+        """Check against Dru Sjodin National Sex Offender Public Website (NSOPW)."""
+        try:
+            params = {'name': name}
+            
+            async with self.session.get(source.url, params=params) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    results = data.get('results', [])
+                    
+                    for result in results:
+                        if self._name_matches(name, result.get('name', '')):
+                            return {
+                                'is_blocked': True,
+                                'confidence': 0.9,
+                                'reasons': ["Dru Sjodin NSOPW Registry match"],
+                                'source_data': result
+                            }
+                    
+                    return {'is_blocked': False, 'confidence': 0.8}
+                else:
+                    logger.warning(f"Dru Sjodin NSOPW API returned status {response.status}")
+                    return None
+                    
+        except Exception as e:
+            logger.error(f"Dru Sjodin NSOPW check failed: {e}")
+            return None
+    
+    async def _check_murder_accountability_project(self, name: str, source: ValidationSource) -> Optional[Dict]:
+        """Check against Murder Accountability Project (MAP) database."""
+        try:
+            params = {'name': name}
+            
+            async with self.session.get(source.url, params=params) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    results = data.get('results', [])
+                    
+                    for result in results:
+                        if self._name_matches(name, result.get('name', '')):
+                            return {
+                                'is_blocked': True,
+                                'confidence': 0.95,
+                                'reasons': [f"MAP Database: {result.get('description', 'Murder case match')}"],
+                                'source_data': result
+                            }
+                    
+                    return {'is_blocked': False, 'confidence': 0.8}
+                else:
+                    logger.warning(f"MAP API returned status {response.status}")
+                    return None
+                    
+        except Exception as e:
+            logger.error(f"MAP check failed: {e}")
+            return None
+    
+    async def _check_radford_serial_killer_db(self, name: str, source: ValidationSource) -> Optional[Dict]:
+        """Check against Radford/FGCU Serial Killer Database."""
+        try:
+            # Radford database is typically accessed via web scraping or direct database access
+            # This is a simplified implementation
+            params = {'name': name}
+            
+            async with self.session.get(source.url, params=params) as response:
+                if response.status == 200:
+                    content = await response.text()
+                    
+                    # Check if name appears in the database content
+                    if name.lower() in content.lower():
+                        return {
+                            'is_blocked': True,
+                            'confidence': 0.9,
+                            'reasons': ["Radford Serial Killer Database match"],
+                            'source_data': {'content': content[:1000]}
+                        }
+                    
+                    return {'is_blocked': False, 'confidence': 0.7}
+                else:
+                    logger.warning(f"Radford Database returned status {response.status}")
+                    return None
+                    
+        except Exception as e:
+            logger.error(f"Radford Serial Killer Database check failed: {e}")
             return None
     
     async def _check_eu_sanctions(self, name: str, source: ValidationSource) -> Optional[Dict]:

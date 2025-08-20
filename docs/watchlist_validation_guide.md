@@ -11,7 +11,7 @@ The Watchlist Validation System is a comprehensive solution for validating gener
 - **International Databases**: EU, UK, Canada Sanctions
 - **Aviation Security**: TSA No Fly List (public data)
 - **Financial Crime**: FINRA BrokerCheck
-- **Law Enforcement**: National Sex Offender Registry
+- **Law Enforcement**: National Sex Offender Registry, Dru Sjodin NSOPW, Murder Accountability Project (MAP), Radford/FGCU Serial Killer Database
 - **Industry Watchlists**: World-Check, Dow Jones Risk & Compliance
 - **Public Records**: Comprehensive public records search
 - **Social Media**: Risk assessment across social platforms
@@ -55,6 +55,9 @@ graph TB
         TSA[TSA No Fly]
         FINRA[FINRA BrokerCheck]
         SEX_OFFENDER[Sex Offender Registry]
+        DRU_SJODIN[Dru Sjodin NSOPW]
+        MAP[Murder Accountability Project]
+        RADFORD[Radford Serial Killer DB]
         WORLD_CHECK[World-Check]
         DOW_JONES[Dow Jones]
         PUBLIC[Public Records]
@@ -80,6 +83,9 @@ graph TB
     VALIDATOR --> TSA
     VALIDATOR --> FINRA
     VALIDATOR --> SEX_OFFENDER
+    VALIDATOR --> DRU_SJODIN
+    VALIDATOR --> MAP
+    VALIDATOR --> RADFORD
     VALIDATOR --> WORLD_CHECK
     VALIDATOR --> DOW_JONES
     VALIDATOR --> PUBLIC
@@ -173,6 +179,9 @@ Each source has built-in rate limiting:
 - TSA No Fly: 5 requests/minute
 - FINRA BrokerCheck: 30 requests/minute
 - Sex Offender Registry: 10 requests/minute
+- Dru Sjodin NSOPW: 10 requests/minute
+- Murder Accountability Project (MAP): 5 requests/minute
+- Radford Serial Killer Database: 5 requests/minute
 - World-Check: 100 requests/minute
 - Dow Jones: 50 requests/minute
 - Public Records: 20 requests/minute
