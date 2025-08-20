@@ -260,11 +260,11 @@ graph TB
                 SOURCES4 --> API4[API Calls]
                 SOURCES5 --> API5[API Calls]
                 
-                API1 --> SOURCE_LIST1[OFAC SDN, FBI, Interpol,<br/>UN Sanctions, EU Sanctions,<br/>UK Sanctions, Canada Sanctions,<br/>TSA No Fly, FINRA, Sex Offender,<br/>Dru Sjodin NSOPW, MAP,<br/>Radford DB, World-Check,<br/>Dow Jones, Public Records,<br/>Social Media]
-                API2 --> SOURCE_LIST2[Same 17 Sources]
-                API3 --> SOURCE_LIST3[Same 17 Sources]
-                API4 --> SOURCE_LIST4[Same 17 Sources]
-                API5 --> SOURCE_LIST5[Same 17 Sources]
+                                 API1 --> SOURCE_LIST1["OFAC SDN, FBI, Interpol,<br/>UN Sanctions, EU Sanctions,<br/>UK Sanctions, Canada Sanctions,<br/>TSA No Fly, FINRA, Sex Offender,<br/>Dru Sjodin NSOPW, MAP,<br/>Radford DB, World-Check,<br/>Dow Jones, Public Records,<br/>Social Media"]
+                 API2 --> SOURCE_LIST2["Same 17 Sources"]
+                 API3 --> SOURCE_LIST3["Same 17 Sources"]
+                 API4 --> SOURCE_LIST4["Same 17 Sources"]
+                 API5 --> SOURCE_LIST5["Same 17 Sources"]
             end
             
             SOURCE_LIST1 --> AGGREGATE1[Aggregate Results]
@@ -299,17 +299,17 @@ graph TB
             ANALYZE4 --> CHECK4{Is Blocked?}
             ANALYZE5 --> CHECK5{Is Blocked?}
             
-            CHECK1 -->|Yes| BLOCKED1[✅ BLOCKED<br/>Sources: OFAC SDN, FBI<br/>Confidence: 0.95]
-            CHECK2 -->|Yes| BLOCKED2[✅ BLOCKED<br/>Sources: OFAC SDN, UN<br/>Confidence: 0.90]
-            CHECK3 -->|Yes| BLOCKED3[✅ BLOCKED<br/>Sources: UN, OFAC, EU<br/>Confidence: 0.92]
-            CHECK4 -->|Yes| BLOCKED4[✅ BLOCKED<br/>Sources: EU, UK, Canada<br/>Confidence: 0.88]
-            CHECK5 -->|Yes| BLOCKED5[✅ BLOCKED<br/>Sources: Radford, MAP<br/>Confidence: 0.95]
-            
-            CHECK1 -->|No| CLEAR1[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
-            CHECK2 -->|No| CLEAR2[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
-            CHECK3 -->|No| CLEAR3[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
-            CHECK4 -->|No| CLEAR4[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
-            CHECK5 -->|No| CLEAR5[⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00]
+                         CHECK1 -->|Yes| BLOCKED1["✅ BLOCKED<br/>Sources: OFAC SDN, FBI<br/>Confidence: 0.95"]
+             CHECK2 -->|Yes| BLOCKED2["✅ BLOCKED<br/>Sources: OFAC SDN, UN<br/>Confidence: 0.90"]
+             CHECK3 -->|Yes| BLOCKED3["✅ BLOCKED<br/>Sources: UN, OFAC, EU<br/>Confidence: 0.92"]
+             CHECK4 -->|Yes| BLOCKED4["✅ BLOCKED<br/>Sources: EU, UK, Canada<br/>Confidence: 0.88"]
+             CHECK5 -->|Yes| BLOCKED5["✅ BLOCKED<br/>Sources: Radford, MAP<br/>Confidence: 0.95"]
+             
+             CHECK1 -->|No| CLEAR1["⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00"]
+             CHECK2 -->|No| CLEAR2["⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00"]
+             CHECK3 -->|No| CLEAR3["⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00"]
+             CHECK4 -->|No| CLEAR4["⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00"]
+             CHECK5 -->|No| CLEAR5["⚠️ NOT BLOCKED<br/>Sources Checked: 17<br/>Confidence: 0.00"]
         end
         
         BLOCKED1 --> COLLECT[Collect All Results]
@@ -334,8 +334,8 @@ graph TB
     
     subgraph "Expected vs Actual Results"
         CONCLUSION --> COMPARE{Compare Results}
-        COMPARE -->|Mock Test| SUCCESS[✅ SUCCESS<br/>5/5 Blocked (100%)<br/>High Confidence Matches]
-        COMPARE -->|Real Test| ISSUES[⚠️ ISSUES<br/>0/5 Blocked (0%)<br/>API Access Problems]
+                 COMPARE -->|Mock Test| SUCCESS["✅ SUCCESS<br/>5/5 Blocked (100%)<br/>High Confidence Matches"]
+         COMPARE -->|Real Test| ISSUES["⚠️ ISSUES<br/>0/5 Blocked (0%)<br/>API Access Problems"]
     end
     
     SUCCESS --> RECOMMEND[Implementation Recommendations]
