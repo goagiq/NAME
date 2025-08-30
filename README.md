@@ -6,77 +6,163 @@ A comprehensive AI-powered name generation system that creates culturally approp
 
 ```mermaid
 graph TB
-    %% Frontend Layer
-    subgraph "Frontend Layer"
-        UI[React Frontend<br/>Material-UI<br/>Port 3000]
-        UI -->|HTTP Requests| COMBINED
+    %% User Interface Layer
+    subgraph "User Interface Layer"
+        UI[Flask Frontend<br/>Port 3000<br/>HTML/CSS/JS]
+        UI -->|HTTP Requests| API
     end
     
-    %% Combined Service Layer
-    subgraph "Combined Service Layer"
-        COMBINED[Combined MCP + API Service<br/>Port 8500<br/>FastAPI + MCP Protocol]
-        COMBINED -->|MCP Tools| MCP_TOOLS[Weight Templates<br/>Culture Overrides<br/>Validate Weights<br/>Generate Identity]
-        COMBINED -->|REST API| API_ENDPOINTS[Generate Identity<br/>Categories<br/>Weight Management<br/>Health Check]
+    %% API Layer
+    subgraph "API Layer"
+        API[Flask API<br/>Generate Identity<br/>Health Check<br/>Feedback Processing]
+        API -->|Name Generation| OLLAMA_SERVICE
+        API -->|Feedback Storage| LOCAL_STORAGE
     end
     
-    %% Core Logic Layer
-    subgraph "Core Logic Layer"
-        WG[Weight Configuration<br/>YAML Config<br/>Culture Overrides<br/>Templates]
-        NG[Name Generator<br/>Cultural Context<br/>Weighted Selection]
-        WC[Weight Config<br/>Validation<br/>Normalization]
+    %% Ollama Service Layer
+    subgraph "Ollama Service Layer"
+        OLLAMA_SERVICE[Ollama Cultural Service<br/>Local LLM Integration<br/>Cultural Analysis<br/>Name Variations]
+        OLLAMA_SERVICE -->|LLM Calls| OLLAMA[Ollama<br/>llama3.1:8b<br/>Local LLM]
+        OLLAMA_SERVICE -->|Name Variations| NAME_VAR[Name Variations Service<br/>Cultural Spellings<br/>Regional Differences]
+        OLLAMA_SERVICE -->|Validation| WATCHLIST[Watchlist Validator<br/>High-Risk Patterns<br/>Compliance Check]
     end
     
-    %% AI Layer
-    subgraph "AI Layer"
-        SA[Strands Agents<br/>Cultural Analyst<br/>Linguistic Expert<br/>Validation Agent]
-        SA -->|LLM Calls| OLLAMA[Ollama<br/>Local LLM]
+    %% Validation & Feedback Layer
+    subgraph "Validation & Feedback Layer"
+        VALIDATION[5-Step Validation Process<br/>1. Cultural Authenticity<br/>2. Religious Compatibility<br/>3. Geographic Validation<br/>4. Age Appropriateness<br/>5. Name Structure]
+        
+        FEEDBACK[Individual Step Feedback<br/>Step-Specific Checkboxes<br/>Granular Feedback Collection<br/>Process Improvement]
+        
+        VALIDATION -->|Step Results| FEEDBACK
+        FEEDBACK -->|Feedback Data| LOCAL_STORAGE
     end
     
-    %% Database Layer
-    subgraph "Database Layer"
-        DB[(SQLite Database<br/>name_generation.db<br/>User Preferences<br/>Weight History)]
-    end
-    
-    %% External Services
-    subgraph "External Services"
-        OLLAMA
-        EXTERNAL[External APIs<br/>Domain Services<br/>Cultural Databases]
+    %% Storage Layer
+    subgraph "Storage Layer"
+        LOCAL_STORAGE[Browser localStorage<br/>nameSystemFeedback<br/>Anonymous User Feedback<br/>Cultural Context Data]
     end
     
     %% Data Flow
-    UI -.->|User Input| COMBINED
-    COMBINED -.->|Weight Config| WG
-    COMBINED -.->|Name Generation| NG
-    NG -.->|Cultural Context| SA
-    SA -.->|Store Results| DB
-    COMBINED -.->|Return Names| UI
-    WG -.->|Validation| WC
+    UI -.->|User Input| API
+    API -.->|Cultural Parameters| OLLAMA_SERVICE
+    OLLAMA_SERVICE -.->|Generated Names| VALIDATION
+    VALIDATION -.->|Validation Steps| UI
+    UI -.->|Step Feedback| FEEDBACK
+    FEEDBACK -.->|Improvement Data| OLLAMA_SERVICE
     
     %% Styling
-    classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef combined fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef core fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    classDef ai fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef database fill:#fce4ec,stroke:#880e4f,stroke-width:2px
-    classDef external fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+    classDef ui fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef api fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef ollama fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef validation fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef storage fill:#fce4ec,stroke:#880e4f,stroke-width:2px
     
-    class UI frontend
-    class COMBINED,MCP_TOOLS,API_ENDPOINTS combined
-    class WG,NG,WC core
-    class SA ai
-    class DB database
-    class OLLAMA,EXTERNAL external
+    class UI ui
+    class API api
+    class OLLAMA_SERVICE,NAME_VAR,WATCHLIST ollama
+    class VALIDATION,FEEDBACK validation
+    class LOCAL_STORAGE,OLLAMA storage
+```
+
+## 🔄 Individual Validation Step Feedback System
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant UI as Flask Frontend
+    participant API as Flask API
+    participant OLLAMA as Ollama Service
+    participant VAL as Validation System
+    participant STORAGE as localStorage
+    
+    U->>UI: Fill form & Generate Identity
+    UI->>API: POST /api/generate-identity
+    API->>OLLAMA: Generate cultural names
+    OLLAMA->>API: Return 5 identities with validation steps
+    API->>UI: Display results with validation steps
+    
+    Note over UI: Each validation step has individual checkbox
+    
+    U->>UI: Click "Issue with this step" checkbox
+    UI->>UI: Show step-specific textarea
+    U->>UI: Provide detailed feedback
+    U->>UI: Click "Submit Feedback"
+    UI->>STORAGE: Store feedback with step context
+    
+    Note over STORAGE: Feedback includes:<br/>- step_index<br/>- step_data<br/>- identity_data<br/>- cultural_context<br/>- feedback_text
+    
+    U->>UI: Click "Regenerate" (optional)
+    UI->>API: POST with feedback_context
+    API->>OLLAMA: Generate with feedback context
+    OLLAMA->>API: Improved names based on feedback
+    API->>UI: Display improved results
+    
+    U->>UI: Click "Export Feedback"
+    UI->>U: Download feedback JSON file
+```
+
+## 📊 Validation Steps & Feedback Flow
+
+```mermaid
+flowchart TD
+    START([User Generates Names]) --> GENERATE[Ollama Generates 5 Identities]
+    GENERATE --> VALIDATE[5-Step Validation Process]
+    
+    VALIDATE --> STEP1[Step 1: Cultural Authenticity<br/>Check if names match cultural patterns]
+    VALIDATE --> STEP2[Step 2: Religious Compatibility<br/>Validate names for religious context]
+    VALIDATE --> STEP3[Step 3: Geographic Validation<br/>Ensure names fit geographic region]
+    VALIDATE --> STEP4[Step 4: Age Appropriateness<br/>Check names suitable for age group]
+    VALIDATE --> STEP5[Step 5: Name Structure<br/>Verify proper name structure]
+    
+    STEP1 --> FEEDBACK1{User Feedback?}
+    STEP2 --> FEEDBACK2{User Feedback?}
+    STEP3 --> FEEDBACK3{User Feedback?}
+    STEP4 --> FEEDBACK4{User Feedback?}
+    STEP5 --> FEEDBACK5{User Feedback?}
+    
+    FEEDBACK1 -->|Yes| STORE1[Store Step 1 Feedback]
+    FEEDBACK2 -->|Yes| STORE2[Store Step 2 Feedback]
+    FEEDBACK3 -->|Yes| STORE3[Store Step 3 Feedback]
+    FEEDBACK4 -->|Yes| STORE4[Store Step 4 Feedback]
+    FEEDBACK5 -->|Yes| STORE5[Store Step 5 Feedback]
+    
+    FEEDBACK1 -->|No| DISPLAY1[Display Step 1 Result]
+    FEEDBACK2 -->|No| DISPLAY2[Display Step 2 Result]
+    FEEDBACK3 -->|No| DISPLAY3[Display Step 3 Result]
+    FEEDBACK4 -->|No| DISPLAY4[Display Step 4 Result]
+    FEEDBACK5 -->|No| DISPLAY5[Display Step 5 Result]
+    
+    STORE1 --> IMPROVE[Use Feedback for Process Improvement]
+    STORE2 --> IMPROVE
+    STORE3 --> IMPROVE
+    STORE4 --> IMPROVE
+    STORE5 --> IMPROVE
+    
+    IMPROVE --> REGENERATE[Regenerate with Feedback Context]
+    REGENERATE --> VALIDATE
+    
+    DISPLAY1 --> END([Display Final Results])
+    DISPLAY2 --> END
+    DISPLAY3 --> END
+    DISPLAY4 --> END
+    DISPLAY5 --> END
+    
+    style START fill:#e1f5fe
+    style END fill:#e8f5e8
+    style IMPROVE fill:#fff3e0
+    style VALIDATE fill:#f3e5f5
 ```
 
 ## ✨ Features
 
 ### 🎯 Core Capabilities
-- **Cultural Name Generation**: Generate names appropriate for specific ethnicities and regions
-- **Multi-Agent AI System**: Uses specialized AI agents for cultural analysis, linguistic expertise, and validation
-- **MCP Integration**: Full Multi-Agent Communication Protocol support with external tools
-- **Fast Mode**: Quick generation using pre-defined culturally appropriate name pools
-- **Swarm Mode**: Advanced generation using AI agent swarms for complex scenarios
-- **Real-time Validation**: Domain availability, trademark checks, and cultural context validation
+- **Cultural Name Generation**: Generate names appropriate for specific ethnicities and regions using Ollama local LLM
+- **Individual Validation Step Feedback**: Granular feedback system for each of 5 validation steps
+- **Name Variations Service**: Handle cultural spelling differences (e.g., Mohammed/Mohamed, Said/Saeed)
+- **Watchlist Validation**: Check generated names against high-risk patterns for compliance
+- **Local Storage Feedback**: Anonymous user feedback stored in browser localStorage
+- **Process Improvement**: Use feedback to enhance future name generation accuracy
+- **Real-time Validation**: 5-step validation process with detailed traceability
 
 ### 🌍 Supported Cultures
 - **Asian**: Cambodian, Chinese, Japanese, Korean, Vietnamese, Indian, Taiwanese
@@ -86,19 +172,20 @@ graph TB
 - **Mixed**: Multi-cultural identities
 
 ### 🔧 Technical Features
-- **React Frontend**: Modern UI with Material-UI components
-- **FastAPI Backend**: High-performance API with automatic documentation
-- **SQLite Database**: Lightweight persistence layer
-- **Ollama Integration**: Local LLM processing
-- **Dynamic Port Management**: Automatic port conflict resolution
-- **Comprehensive Logging**: Detailed traceability and debugging
+- **Flask Frontend**: Lightweight HTML/CSS/JS interface with modern styling
+- **Flask API**: Simple and efficient API with health monitoring
+- **Ollama Integration**: Local LLM processing with llama3.1:8b model
+- **Name Variations Service**: Cultural spelling database for regional differences
+- **Watchlist Validator**: Compliance checking for high-risk name patterns
+- **Local Storage**: Browser-based feedback storage for anonymous user input
+- **Debug System**: Built-in troubleshooting tools for feedback system
+- **Export Functionality**: Download feedback data for analysis
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.11+
-- Node.js 16+
-- Ollama (for local LLM processing)
+- Ollama (with llama3.1:8b model)
 
 ### Installation
 
@@ -108,93 +195,81 @@ graph TB
    cd NAME
    ```
 
-2. **Install Python dependencies**
+2. **Set up Python environment**
    ```bash
-   # Using uv (recommended)
-   uv sync
-   
-   # Or using pip
-   pip install -r requirements.txt
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r python_frontend/requirements.txt
    ```
 
-3. **Install frontend dependencies**
+3. **Install and start Ollama**
    ```bash
-   cd frontend
-   npm install
-   cd ..
+   # Install Ollama (if not already installed)
+   # Visit: https://ollama.ai/
+   
+   # Pull the required model
+   ollama pull llama3.1:8b
    ```
 
-4. **Start the system**
+4. **Start the Flask application**
    ```bash
-   # Start combined service (MCP + API on port 8500)
-   .venv/Scripts/python.exe start_combined_service.py
-   
-   # In a new terminal, start the frontend
-   cd frontend
-   npm start
+   cd python_frontend
+   python app.py
    ```
+
+5. **Access the application**
+   - Frontend: http://localhost:3000
+   - API: http://localhost:3000/api/health
 
 ## 📖 Usage
 
 ### Web Interface
 1. Open your browser to `http://localhost:3000`
 2. Fill out the identity generation form:
-   - **Sex**: Male/Female
+   - **Sex**: Male/Female/Non-binary
    - **Location**: Country/Region
    - **Age**: Age range
    - **Occupation**: Professional field
    - **Race**: Ethnicity
-   - **Religion**: Religious background (optional)
-   - **Birth Year**: Year of birth (optional)
+   - **Religion**: Religious background
+   - **Birth Year**: Year of birth
+   - **Birth Country**: Country of birth (optional)
+   - **Citizenship Country**: Current citizenship (optional)
 3. Click "Generate Identity" to create 5 culturally appropriate names
-4. Use "Regenerate" to get new names
+4. Review the 5 validation steps for each generated identity
+5. Provide feedback on specific validation steps using individual checkboxes
+6. Use "Regenerate" to get new names with feedback context
 
 ### API Usage
 
 #### Generate Names
 ```bash
-curl -X POST "http://localhost:8500/api/generate-identity" \
+curl -X POST "http://localhost:3000/api/generate-identity" \
   -H "Content-Type: application/json" \
   -d '{
     "sex": "Female",
-    "location": "USA",
-    "age": 25,
-    "occupation": "Engineer",
-    "race": "Asian",
-    "religion": "Buddhist",
-    "birth_year": 1998,
-    "custom_weights": {
-      "race": 0.30,
-      "location": 0.20,
-      "age": 0.15
-    },
-    "template_name": "cultural_focus"
+    "location": "Iraq",
+    "age": 52,
+    "occupation": "IT",
+    "race": "Iraqi",
+    "religion": "Christian",
+    "birth_year": 1972,
+    "birth_country": "Iraq",
+    "citizenship_country": "US"
   }'
 ```
 
 #### Check System Health
 ```bash
-curl "http://localhost:8500/health"
+curl "http://localhost:3000/api/health"
 ```
 
-#### Get Available Categories
+#### Export Feedback Data
 ```bash
-curl "http://localhost:8500/api/categories"
+# Feedback is stored in browser localStorage
+# Use the "Export Feedback" button in the web interface
+# Or access via browser developer tools
 ```
-
-#### Get Weight Templates
-```bash
-curl "http://localhost:8500/api/weights/templates"
-```
-
-#### Validate Weights
-```bash
-curl -X POST "http://localhost:8500/api/weights/validate" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "field_weights": {
-      "sex": 0.25,
-      "location": 0.20,
       "age": 0.15,
       "occupation": 0.10,
       "race": 0.20,
@@ -648,30 +723,31 @@ print(response.json()['result'])
 
 ```
 NAME/
-├── src/                          # Core source code
-│   ├── api/                      # FastAPI application
-│   ├── core/                     # Core business logic
-│   ├── config/                   # Configuration files
-│   │   ├── field_weights.yaml    # Weight configuration
-│   │   └── __init__.py           # Configuration loader
-│   ├── database/                 # Database models and operations
-│   ├── services/                 # AI services and MCP integration
-│   │   ├── combined_service.py   # Combined MCP + API service
-│   │   ├── mcp_service.py        # MCP service (legacy)
-│   │   └── api_service.py        # API service (legacy)
-│   └── utils/                    # Utilities and configuration
-├── frontend/                     # React frontend application
-│   ├── src/
-│   │   ├── components/           # React components
-│   │   └── ...
-│   └── package.json
-├── tests/                        # Test suite
+├── python_frontend/              # Flask-based frontend application
+│   ├── app.py                    # Main Flask application
+│   ├── requirements.txt          # Python dependencies
+│   ├── templates/
+│   │   └── index.html           # Main HTML template
+│   └── static/
+│       ├── css/
+│       │   └── style.css        # Modern CSS styling
+│       └── js/
+│           └── app.js           # Frontend JavaScript
+├── src/
+│   └── services/
+│       ├── ollama_cultural_service.py  # Ollama integration
+│       ├── name_variations.py          # Cultural name variations
+│       └── validation/
+│           ├── __init__.py
+│           └── watchlist_validator.py  # Compliance checking
 ├── docs/                         # Documentation
-├── results/                      # Logs and results
-├── start_combined_service.py     # Main startup script (recommended)
-├── start_mcp_service.py          # MCP service startup (legacy)
-├── start_api_service.py          # API service startup (legacy)
-└── test_mcp_client.py            # Connectivity testing
+│   ├── project.md               # Project overview
+│   ├── input_field_weights.md   # Weight configuration
+│   └── watchlist_validation_guide.md
+├── test_*.py                    # Feedback system tests
+├── ENHANCEMENT_RECOMMENDATIONS.md
+├── OPTIMIZATION_SUMMARY.md
+└── README_OPTIMIZED.md
 ```
 
 ## 🔍 API Reference
@@ -679,7 +755,7 @@ NAME/
 ### Endpoints
 
 #### `POST /api/generate-identity`
-Generate culturally appropriate identities with configurable weights.
+Generate culturally appropriate identities using Ollama local LLM.
 
 **Request Body:**
 ```json
@@ -694,40 +770,35 @@ Generate culturally appropriate identities with configurable weights.
   "birth_country": "string (optional)",
   "citizenship_country": "string (optional)",
   "diaspora_generation": "integer (optional)",
-  "custom_weights": {
-    "sex": "float (optional)",
-    "location": "float (optional)",
-    "age": "float (optional)",
-    "occupation": "float (optional)",
-    "race": "float (optional)",
-    "religion": "float (optional)",
-    "birth_year": "float (optional)"
-  },
-  "template_name": "string (optional)"
+  "feedback_context": {
+    "feedback_count": "integer (optional)",
+    "recent_feedback": ["string (optional)"],
+    "cultural_improvements": "integer (optional)"
+  }
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
   "identities": [
     {
       "first_name": "string",
       "middle_name": "string",
       "last_name": "string",
-      "full_name": "string"
+      "cultural_notes": "string",
+      "validation_status": "string",
+      "traceability": {
+        "validation_steps": [
+          {
+            "step": "integer",
+            "description": "string",
+            "result": "string"
+          }
+        ]
+      }
     }
-  ],
-  "weights_used": {
-    "sex": 0.25,
-    "location": 0.20,
-    "age": 0.15,
-    "occupation": 0.10,
-    "race": 0.20,
-    "religion": 0.05,
-    "birth_year": 0.05
-  }
+  ]
 }
 ```
 
