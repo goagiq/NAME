@@ -13,6 +13,9 @@ Required Libraries
     json
     logging
     typing (Dict, List, Any, Optional)
+    strands-agents>=1.6.0
+    strands-agents-tools>=0.2.5
+    mcp>=1.13.0
 
 Imports and Decorators
 
