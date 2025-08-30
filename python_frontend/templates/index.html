@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAME - Cultural Identity Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> NAME System</h1>
+            <p>Generate culturally appropriate identities with AI-powered cultural intelligence</p>
+            <div class="status-indicator">
+                <span id="ollamaStatus" class="status-badge">
+                    <i class="fas fa-circle"></i> Checking Ollama...
+                </span>
+            </div>
+        </header>
+        
+        <main>
+            <div class="form-section">
+                <h2><i class="fas fa-user-plus"></i> Identity Generation Form</h2>
+                
+                <!-- Quick Templates -->
+                <div class="template-section">
+                    <h3>Quick Templates</h3>
+                    <div class="template-buttons">
+                        <button type="button" class="template-btn" data-template="sudanese">
+                            <i class="fas fa-star"></i> Sudanese
+                        </button>
+                        <button type="button" class="template-btn" data-template="spanish">
+                            <i class="fas fa-star"></i> Spanish
+                        </button>
+                        <button type="button" class="template-btn" data-template="chinese">
+                            <i class="fas fa-star"></i> Chinese
+                        </button>
+                        <button type="button" class="template-btn" data-template="indian">
+                            <i class="fas fa-star"></i> Indian
+                        </button>
+                    </div>
+                </div>
+                
+                <form id="identityForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sex">
+                                <i class="fas fa-venus-mars"></i> Sex:
+                            </label>
+                            <select id="sex" name="sex" required>
+                                <option value="">Select sex</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Non-binary">Non-binary</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="age">
+                                <i class="fas fa-birthday-cake"></i> Age:
+                            </label>
+                            <input type="number" id="age" name="age" min="1" max="120" required>
+                            <div class="field-hint">Enter current age</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="location">
+                                <i class="fas fa-map-marker-alt"></i> Location:
+                            </label>
+                            <input type="text" id="location" name="location" placeholder="e.g., Sudan, Khartoum" required>
+                            <div class="field-hint">Country, City format recommended</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="occupation">
+                                <i class="fas fa-briefcase"></i> Occupation:
+                            </label>
+                            <input type="text" id="occupation" name="occupation" placeholder="e.g., Software Engineer" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="race">
+                                <i class="fas fa-users"></i> Race/Ethnicity:
+                            </label>
+                            <select id="race" name="race" required>
+                                <option value="">Select ethnicity</option>
+                                <option value="Sudanese">Sudanese</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="Chinese">Chinese</option>
+                                <option value="Indian">Indian</option>
+                                <option value="American">American</option>
+                                <option value="British">British</option>
+                                <option value="French">French</option>
+                                <option value="German">German</option>
+                                <option value="Italian">Italian</option>
+                                <option value="Japanese">Japanese</option>
+                                <option value="Korean">Korean</option>
+                                <option value="Vietnamese">Vietnamese</option>
+                                <option value="Thai">Thai</option>
+                                <option value="Filipino">Filipino</option>
+                                <option value="Mexican">Mexican</option>
+                                <option value="Brazilian">Brazilian</option>
+                                <option value="Argentine">Argentine</option>
+                                <option value="Egyptian">Egyptian</option>
+                                <option value="Moroccan">Moroccan</option>
+                                <option value="Turkish">Turkish</option>
+                                <option value="Iranian">Iranian</option>
+                                <option value="Pakistani">Pakistani</option>
+                                <option value="Bangladeshi">Bangladeshi</option>
+                                <option value="Nigerian">Nigerian</option>
+                                <option value="Kenyan">Kenyan</option>
+                                <option value="South African">South African</option>
+                                <option value="Other">Other (specify below)</option>
+                            </select>
+                            <input type="text" id="race_other" name="race_other" placeholder="Specify ethnicity" style="display: none; margin-top: 5px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="religion">
+                                <i class="fas fa-pray"></i> Religion:
+                            </label>
+                            <select id="religion" name="religion" required>
+                                <option value="">Select religion</option>
+                                <option value="Muslim">Muslim</option>
+                                <option value="Christian">Christian</option>
+                                <option value="Catholic">Catholic</option>
+                                <option value="Protestant">Protestant</option>
+                                <option value="Orthodox">Orthodox</option>
+                                <option value="Jewish">Jewish</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddhist">Buddhist</option>
+                                <option value="Sikh">Sikh</option>
+                                <option value="Atheist">Atheist</option>
+                                <option value="Agnostic">Agnostic</option>
+                                <option value="Other">Other (specify below)</option>
+                            </select>
+                            <input type="text" id="religion_other" name="religion_other" placeholder="Specify religion" style="display: none; margin-top: 5px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="birth_year">
+                                <i class="fas fa-calendar"></i> Birth Year:
+                            </label>
+                            <input type="number" id="birth_year" name="birth_year" min="1900" max="2024" required>
+                            <div class="field-hint">Used for historically appropriate names</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="birth_country">
+                                <i class="fas fa-flag"></i> Birth Country (Optional):
+                            </label>
+                            <input type="text" id="birth_country" name="birth_country" placeholder="e.g., Sudan">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="citizenship_country">
+                                <i class="fas fa-passport"></i> Citizenship Country (Optional):
+                            </label>
+                            <input type="text" id="citizenship_country" name="citizenship_country" placeholder="e.g., Sudan">
+                        </div>
+                        <div class="form-group">
+                            <label for="diaspora_generation">
+                                <i class="fas fa-sitemap"></i> Diaspora Generation (Optional):
+                            </label>
+                            <select id="diaspora_generation" name="diaspora_generation">
+                                <option value="">Select generation</option>
+                                <option value="1">1st Generation</option>
+                                <option value="2">2nd Generation</option>
+                                <option value="3">3rd Generation</option>
+                                <option value="4">4th Generation</option>
+                                <option value="5">5th Generation</option>
+                            </select>
+                            <div class="field-hint">Immigrant generation for cultural context</div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" id="generateBtn">
+                            <i class="fas fa-magic"></i> Generate Identity
+                        </button>
+                        <button type="button" id="regenerateBtn" style="display: none;">
+                            <i class="fas fa-redo"></i> Regenerate
+                        </button>
+                        <button type="button" id="clearBtn">
+                            <i class="fas fa-eraser"></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="result" class="result-section" style="display: none;">
+                <h3><i class="fas fa-id-card"></i> Generated Identities</h3>
+                <div class="result-controls">
+                    <div class="control-group">
+                        <button type="button" id="collapseAllBtn" class="secondary-btn">
+                            <i class="fas fa-chevron-up"></i> Collapse All
+                        </button>
+                        <button type="button" id="expandAllBtn" class="secondary-btn">
+                            <i class="fas fa-chevron-down"></i> Expand All
+                        </button>
+                    </div>
+                                           <div class="control-group">
+                           <button type="button" id="exportBtn" class="secondary-btn">
+                               <i class="fas fa-download"></i> Export JSON
+                           </button>
+                           <button type="button" id="exportFeedbackBtn" class="secondary-btn">
+                               <i class="fas fa-comment-dots"></i> Export Feedback
+                           </button>
+                           <button type="button" id="debugFeedbackBtn" class="secondary-btn" onclick="debugFeedbackSystem()">
+                               <i class="fas fa-bug"></i> Debug Feedback
+                           </button>
+                           <button type="button" id="toggleTraceabilityBtn" class="secondary-btn">
+                               <i class="fas fa-info-circle"></i> Show/Hide Details
+                           </button>
+                       </div>
+                </div>
+                <div id="identityResult"></div>
+                <div id="traceabilitySection" style="display: none;">
+                    <h4><i class="fas fa-search"></i> Generation Details</h4>
+                    <div id="traceabilityResult"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2024 NAME System - Powered by Ollama LLM</p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

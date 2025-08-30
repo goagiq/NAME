@@ -9,20 +9,21 @@ graph TB
     %% Frontend Layer
     subgraph "Frontend Layer"
         UI[React Frontend<br/>Material-UI<br/>Port 3000]
-        UI -->|HTTP Requests| API
+        UI -->|HTTP Requests| COMBINED
     end
     
-    %% API Layer
-    subgraph "API Layer"
-        API[FastAPI Server<br/>Port 8001-8005<br/>Dynamic Assignment]
-        API -->|JSON-RPC| MCP
-        API -->|HTTP| DB
+    %% Combined Service Layer
+    subgraph "Combined Service Layer"
+        COMBINED[Combined MCP + API Service<br/>Port 8500<br/>FastAPI + MCP Protocol]
+        COMBINED -->|MCP Tools| MCP_TOOLS[Weight Templates<br/>Culture Overrides<br/>Validate Weights<br/>Generate Identity]
+        COMBINED -->|REST API| API_ENDPOINTS[Generate Identity<br/>Categories<br/>Weight Management<br/>Health Check]
     end
     
-    %% MCP Layer
-    subgraph "MCP Layer"
-        MCP[MCP Server<br/>Port 8500<br/>Streamable HTTP]
-        MCP -->|Tools| TOOLS[Domain Check<br/>Watchlist Validate<br/>Cultural Context<br/>Trademark Check]
+    %% Core Logic Layer
+    subgraph "Core Logic Layer"
+        WG[Weight Configuration<br/>YAML Config<br/>Culture Overrides<br/>Templates]
+        NG[Name Generator<br/>Cultural Context<br/>Weighted Selection]
+        WC[Weight Config<br/>Validation<br/>Normalization]
     end
     
     %% AI Layer
@@ -33,7 +34,7 @@ graph TB
     
     %% Database Layer
     subgraph "Database Layer"
-        DB[(SQLite Database<br/>name_generation.db)]
+        DB[(SQLite Database<br/>name_generation.db<br/>User Preferences<br/>Weight History)]
     end
     
     %% External Services
@@ -43,23 +44,25 @@ graph TB
     end
     
     %% Data Flow
-    UI -.->|User Input| API
-    API -.->|Name Generation| SA
+    UI -.->|User Input| COMBINED
+    COMBINED -.->|Weight Config| WG
+    COMBINED -.->|Name Generation| NG
+    NG -.->|Cultural Context| SA
     SA -.->|Store Results| DB
-    API -.->|Return Names| UI
-    MCP -.->|Tool Results| API
+    COMBINED -.->|Return Names| UI
+    WG -.->|Validation| WC
     
     %% Styling
     classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef api fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef mcp fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef combined fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef core fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
     classDef ai fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef database fill:#fce4ec,stroke:#880e4f,stroke-width:2px
     classDef external fill:#f1f8e9,stroke:#33691e,stroke-width:2px
     
     class UI frontend
-    class API api
-    class MCP,TOOLS mcp
+    class COMBINED,MCP_TOOLS,API_ENDPOINTS combined
+    class WG,NG,WC core
     class SA ai
     class DB database
     class OLLAMA,EXTERNAL external
@@ -123,8 +126,8 @@ graph TB
 
 4. **Start the system**
    ```bash
-   # Start backend services (MCP + API)
-   python start_services_simple.py
+   # Start combined service (MCP + API on port 8500)
+   .venv/Scripts/python.exe start_combined_service.py
    
    # In a new terminal, start the frontend
    cd frontend
@@ -150,50 +153,86 @@ graph TB
 
 #### Generate Names
 ```bash
-curl -X POST "http://localhost:8001/api/names/generate" \
+curl -X POST "http://localhost:8500/api/generate-identity" \
   -H "Content-Type: application/json" \
   -d '{
-    "category": "person",
-    "parameters": {
-      "sex": "Female",
-      "location": "USA",
-      "age": "25",
-      "occupation": "Engineer",
-      "race": "Cambodian",
-      "fast_mode": true
-    }
+    "sex": "Female",
+    "location": "USA",
+    "age": 25,
+    "occupation": "Engineer",
+    "race": "Asian",
+    "religion": "Buddhist",
+    "birth_year": 1998,
+    "custom_weights": {
+      "race": 0.30,
+      "location": 0.20,
+      "age": 0.15
+    },
+    "template_name": "cultural_focus"
   }'
 ```
 
 #### Check System Health
 ```bash
-curl "http://localhost:8001/health"
+curl "http://localhost:8500/health"
 ```
 
 #### Get Available Categories
 ```bash
-curl "http://localhost:8001/api/categories"
+curl "http://localhost:8500/api/categories"
+```
+
+#### Get Weight Templates
+```bash
+curl "http://localhost:8500/api/weights/templates"
+```
+
+#### Validate Weights
+```bash
+curl -X POST "http://localhost:8500/api/weights/validate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "field_weights": {
+      "sex": 0.25,
+      "location": 0.20,
+      "age": 0.15,
+      "occupation": 0.10,
+      "race": 0.20,
+      "religion": 0.05,
+      "birth_year": 0.05
+    }
+  }'
 ```
 
 ### MCP Integration
 
 The system includes a full MCP server on port 8500 with the following tools:
 
-- **Domain Check**: Validate domain name availability
-- **Watchlist Validate**: Check names against government watchlists
-- **Cultural Context Search**: Analyze cultural meaning of names
-- **Trademark Check**: Validate trademark availability
+- **generate_identity**: Generate culturally appropriate identities with configurable weights
+- **get_weight_templates**: Get available weight templates
+- **get_culture_overrides**: Get culture-specific weight overrides
+- **validate_weights**: Validate weight configuration
 
 ```bash
 # Test MCP connectivity
-python test_mcp_connectivity.py
+.venv/Scripts/python.exe test_mcp_client.py
+
+# Test MCP tools directly
+curl -X POST http://localhost:8500/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/list",
+    "params": {}
+  }'
 ```
 
 ## 🔧 Configuration
 
 ### Port Configuration
-- **MCP Server**: Port 8500 (fixed)
-- **API Server**: Port 8001-8005 (dynamic assignment)
+- **Combined Service**: Port 8500 (MCP + API)
 - **Frontend**: Port 3000
 
 ### Environment Variables
@@ -207,6 +246,198 @@ LOG_LEVEL=INFO
 # Ollama configuration
 OLLAMA_BASE_URL=http://localhost:11434
 ```
+
+## ⚙️ Configuration System
+
+### Weight Configuration (`src/config/field_weights.yaml`)
+
+The system uses a sophisticated weight configuration system that allows fine-tuning of input field importance for name generation. This configuration is stored in YAML format and supports multiple levels of customization.
+
+#### Default Weights
+```yaml
+field_weights:
+  default:
+    sex: 0.25              # Gender (25% importance)
+    location: 0.20         # Geographic location (20% importance)
+    age: 0.15              # Age range (15% importance)
+    occupation: 0.10       # Professional field (10% importance)
+    race: 0.20             # Ethnicity/culture (20% importance)
+    religion: 0.05         # Religious background (5% importance)
+    birth_year: 0.05       # Birth year (5% importance)
+    birth_country: 0.02    # Country of birth (2% importance)
+    citizenship_country: 0.01  # Current citizenship (1% importance)
+    diaspora_generation: 0.01  # Immigrant generation (1% importance)
+```
+
+#### Culture-Specific Overrides
+The system supports culture-specific weight adjustments to better reflect the importance of certain fields for different ethnicities:
+
+```yaml
+culture_overrides:
+  chinese:
+    race: 0.30             # Higher emphasis on ethnicity
+    location: 0.15         # Reduced location importance
+    birth_year: 0.08       # Increased birth year importance
+  
+  spanish:
+    location: 0.25         # Higher emphasis on location
+    religion: 0.10         # Increased religion importance
+    birth_country: 0.05    # Birth country more important
+  
+  indian:
+    race: 0.28             # High ethnicity importance
+    religion: 0.12         # Religion more significant
+    birth_country: 0.04    # Birth country consideration
+```
+
+**Supported Cultures:**
+- **Asian**: chinese, japanese, korean, vietnamese, thai, filipino, indian
+- **Hispanic**: spanish, arabic, persian, turkish
+- **African**: african_american, african
+- **European**: eastern_european, scandinavian, italian, french
+- **American**: american
+
+#### Weight Templates
+Pre-configured templates for common use cases:
+
+```yaml
+templates:
+  cultural_focus:
+    description: "Emphasize cultural and ethnic background"
+    weights:
+      race: 0.35           # High ethnicity emphasis
+      location: 0.20       # Moderate location
+      sex: 0.20            # Moderate gender
+      age: 0.10            # Lower age importance
+      occupation: 0.08     # Lower occupation importance
+      religion: 0.05       # Minimal religion
+      birth_year: 0.02     # Minimal birth year
+
+  geographic_focus:
+    description: "Emphasize location and regional context"
+    weights:
+      location: 0.35       # High location emphasis
+      race: 0.20           # Moderate ethnicity
+      sex: 0.20            # Moderate gender
+      age: 0.12            # Moderate age
+      occupation: 0.08     # Lower occupation
+      religion: 0.03       # Minimal religion
+      birth_year: 0.02     # Minimal birth year
+
+  professional_focus:
+    description: "Emphasize occupation and professional context"
+    weights:
+      occupation: 0.30     # High occupation emphasis
+      sex: 0.25            # High gender importance
+      location: 0.20       # Moderate location
+      age: 0.15            # Moderate age
+      race: 0.10           # Lower ethnicity importance
+
+  balanced:
+    description: "Balanced approach for general use"
+    weights:
+      sex: 0.25            # Equal gender importance
+      location: 0.20       # Equal location importance
+      age: 0.15            # Moderate age
+      occupation: 0.10     # Lower occupation
+      race: 0.20           # Equal ethnicity importance
+      religion: 0.05       # Minimal religion
+      birth_year: 0.05     # Minimal birth year
+```
+
+#### Validation Rules
+The system includes comprehensive validation to ensure weight configurations are valid:
+
+```yaml
+validation:
+  min_weight: 0.01         # Minimum weight per field
+  max_weight: 0.50         # Maximum weight per field
+  total_weight_range: [0.8, 1.2]  # Total weights should be between 0.8-1.2
+  required_fields: ["sex", "location", "age", "occupation", "race"]
+```
+
+### Service Configuration
+
+#### MCP Service Configuration
+```yaml
+mcp:
+  host: localhost
+  port: 8500
+  log_level: INFO
+```
+
+#### API Service Configuration
+```yaml
+api:
+  host: localhost
+  port: 8001
+  log_level: INFO
+  cors_origins: ["http://localhost:3000"]
+  enable_docs: true
+```
+
+### Configuration Management
+
+#### Loading Configuration
+The system uses a centralized configuration management system:
+
+```python
+from src.config import get_field_weights, get_service_config
+
+# Get weight configuration
+weights = get_field_weights()
+
+# Get service configuration
+mcp_config = get_service_config('mcp')
+api_config = get_service_config('api')
+```
+
+#### Dynamic Weight Application
+Weights are applied in the following order (later overrides earlier):
+
+1. **Default weights** from configuration
+2. **Culture-specific overrides** (if culture is specified)
+3. **Template weights** (if template is specified)
+4. **User custom weights** (if provided in request)
+5. **Request-specific weights** (if provided in API call)
+
+#### Weight Normalization
+The system automatically normalizes weights to ensure they sum to approximately 1.0:
+
+```python
+# Example normalization
+original_weights = {"sex": 0.3, "location": 0.4, "age": 0.2}
+total = sum(original_weights.values())  # 0.9
+normalized = {k: v/total for k, v in original_weights.items()}
+# Result: {"sex": 0.33, "location": 0.44, "age": 0.22}
+```
+
+### Configuration Files Structure
+
+```
+src/config/
+├── __init__.py              # Configuration loader
+├── field_weights.yaml       # Weight configuration
+└── services.yaml           # Service configuration
+```
+
+### API Configuration Endpoints
+
+The system provides REST API endpoints for weight configuration management:
+
+- `GET /api/weights/templates` - Get available weight templates
+- `GET /api/weights/cultures` - Get culture-specific overrides
+- `POST /api/weights/validate` - Validate custom weight configuration
+- `POST /api/weights/calculate` - Calculate final weights with overrides
+
+### MCP Configuration Tools
+
+The system also provides MCP tools for weight configuration:
+
+- `get_weight_templates` - Get available templates
+- `get_culture_overrides` - Get culture-specific overrides
+- `validate_weights` - Validate weight configuration
+- `generate_identity` - Generate names with configurable weights
 
 ## 🧪 Testing
 
@@ -420,8 +651,14 @@ NAME/
 ├── src/                          # Core source code
 │   ├── api/                      # FastAPI application
 │   ├── core/                     # Core business logic
+│   ├── config/                   # Configuration files
+│   │   ├── field_weights.yaml    # Weight configuration
+│   │   └── __init__.py           # Configuration loader
 │   ├── database/                 # Database models and operations
 │   ├── services/                 # AI services and MCP integration
+│   │   ├── combined_service.py   # Combined MCP + API service
+│   │   ├── mcp_service.py        # MCP service (legacy)
+│   │   └── api_service.py        # API service (legacy)
 │   └── utils/                    # Utilities and configuration
 ├── frontend/                     # React frontend application
 │   ├── src/
@@ -431,34 +668,42 @@ NAME/
 ├── tests/                        # Test suite
 ├── docs/                         # Documentation
 ├── results/                      # Logs and results
-├── start_services_simple.py      # Main startup script
-├── start_api_server.py           # API server startup
-├── mcp_server_proper.py          # MCP server
-├── port_manager.py               # Port management
-└── test_mcp_connectivity.py      # Connectivity testing
+├── start_combined_service.py     # Main startup script (recommended)
+├── start_mcp_service.py          # MCP service startup (legacy)
+├── start_api_service.py          # API service startup (legacy)
+└── test_mcp_client.py            # Connectivity testing
 ```
 
 ## 🔍 API Reference
 
 ### Endpoints
 
-#### `POST /api/names/generate`
-Generate culturally appropriate names.
+#### `POST /api/generate-identity`
+Generate culturally appropriate identities with configurable weights.
 
 **Request Body:**
 ```json
 {
-  "category": "person",
-  "parameters": {
-    "sex": "string",
-    "location": "string", 
-    "age": "string",
-    "occupation": "string",
-    "race": "string",
-    "religion": "string (optional)",
-    "birth_year": "string (optional)",
-    "fast_mode": "boolean (default: true)"
-  }
+  "sex": "string (required)",
+  "location": "string (required)", 
+  "age": "integer (required)",
+  "occupation": "string (required)",
+  "race": "string (required)",
+  "religion": "string (required)",
+  "birth_year": "integer (required)",
+  "birth_country": "string (optional)",
+  "citizenship_country": "string (optional)",
+  "diaspora_generation": "integer (optional)",
+  "custom_weights": {
+    "sex": "float (optional)",
+    "location": "float (optional)",
+    "age": "float (optional)",
+    "occupation": "float (optional)",
+    "race": "float (optional)",
+    "religion": "float (optional)",
+    "birth_year": "float (optional)"
+  },
+  "template_name": "string (optional)"
 }
 ```
 
@@ -466,10 +711,23 @@ Generate culturally appropriate names.
 ```json
 {
   "success": true,
-  "category": "person",
-  "parameters": {...},
-  "result": "Generated names text",
-  "mode": "fast|swarm"
+  "identities": [
+    {
+      "first_name": "string",
+      "middle_name": "string",
+      "last_name": "string",
+      "full_name": "string"
+    }
+  ],
+  "weights_used": {
+    "sex": 0.25,
+    "location": 0.20,
+    "age": 0.15,
+    "occupation": 0.10,
+    "race": 0.20,
+    "religion": 0.05,
+    "birth_year": 0.05
+  }
 }
 ```
 
@@ -484,17 +742,36 @@ Get traceability report for a request.
 
 ### MCP Tools
 
-#### `domain_check`
-Check domain name availability.
+#### `generate_identity`
+Generate culturally appropriate identities with configurable weights.
 
-#### `watchlist_validate`
-Validate names against government watchlists.
+**Parameters:**
+- `sex`: Gender (Male/Female/Non-binary)
+- `location`: Geographic location
+- `age`: Age
+- `occupation`: Professional field
+- `race`: Ethnicity/culture
+- `religion`: Religious background
+- `birth_year`: Year of birth
+- `custom_weights`: Custom field weights (optional)
+- `template_name`: Weight template to apply (optional)
 
-#### `cultural_context_search`
-Analyze cultural meaning and context of names.
+#### `get_weight_templates`
+Get available weight templates for different use cases.
 
-#### `trademark_check`
-Check trademark availability in specific industries.
+**Returns:** Available templates (cultural_focus, geographic_focus, professional_focus, balanced)
+
+#### `get_culture_overrides`
+Get culture-specific weight overrides.
+
+**Returns:** Culture-specific weight adjustments for different ethnicities.
+
+#### `validate_weights`
+Validate weight configuration.
+
+**Parameters:**
+- `field_weights`: Weight configuration to validate
+- `culture_context`: Cultural context (optional)
 
 ## 🐛 Troubleshooting
 
@@ -508,26 +785,32 @@ tasklist | findstr python.exe
 # Kill conflicting processes
 taskkill /F /IM python.exe
 
-# Restart services
-python start_services_simple.py
+# Restart combined service
+.venv/Scripts/python.exe start_combined_service.py
 ```
 
 #### Frontend Connection Issues
 ```bash
-# Check API server is running
-curl http://localhost:8001/health
+# Check combined service is running
+curl http://localhost:8500/health
 
 # Update frontend proxy if needed
-# Edit frontend/package.json and update "proxy" field
+# Edit frontend/package.json and update "proxy" field to "http://localhost:8500"
 ```
 
 #### MCP Server Issues
 ```bash
 # Test MCP connectivity
-python test_mcp_connectivity.py
+.venv/Scripts/python.exe test_mcp_client.py
 
-# Check MCP server logs
+# Check combined service logs
 # Look for errors in console output
+
+# Test MCP tools directly
+curl -X POST http://localhost:8500/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}'
 ```
 
 #### Slow Name Generation
