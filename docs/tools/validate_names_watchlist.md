@@ -10,12 +10,19 @@ General Info
 
 Required Libraries
 
+    # Core Python Libraries
     json
     logging
     typing (Dict, List, Any, Optional)
+
+    # MCP and Strands Integration
+    mcp>=1.13.0
     strands-agents>=1.6.0
     strands-agents-tools>=0.2.5
-    mcp>=1.13.0
+
+    # Additional Dependencies
+    fastapi>=0.104.0
+    pydantic>=2.5.0
 
 Imports and Decorators
 
