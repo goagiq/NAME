@@ -8,6 +8,36 @@ General Info
     Author: NAME System Team
     Description: Generates culturally appropriate names based on user-specified cultural parameters using Ollama LLM.
 
+Required Libraries
+
+    requests>=2.25.0
+    json
+    logging
+    typing (Dict, List, Any, Optional)
+    sys
+    os
+
+Imports and Decorators
+
+    import json
+    import logging
+    from typing import Dict, List, Any, Optional
+    import sys
+    import os
+
+    # Add src to path for imports
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+    from services.ollama_cultural_service import OllamaCulturalService
+
+    logger = logging.getLogger(__name__)
+
+    # Initialize the Ollama service
+    ollama_service = OllamaCulturalService()
+
+    # MCP Tool Decorator (if applicable)
+    # @tool("generate_cultural_names")
+
 Intended Use
 
     For conversational agents and applications needing culturally authentic name generation.

@@ -146,4 +146,8 @@ Individual tool documentation is available in the `docs/tools/` directory:
 - `validate_names_watchlist.md` - Name validation tool  
 - `get_cultural_context.md` - Cultural context provider
 
-Each tool card follows the standardized template format for consistency and completeness.
+Each tool card follows the enhanced standardized template format including:
+- Required libraries and dependencies
+- Imports and decorators
+- Input/output schemas
+- Examples and safety considerations

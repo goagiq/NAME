@@ -27,12 +27,14 @@ This directory contains detailed documentation for each MCP tool available in th
 Each tool card follows this standardized structure:
 
 1. **General Info** - Basic tool information (name, version, author, description)
-2. **Intended Use** - Primary use cases and applications
-3. **Out-of-Scope / Limitations** - What the tool doesn't do and its constraints
-4. **Input Schema** - JSON schema for tool inputs
-5. **Output Schema** - JSON schema for tool outputs
-6. **Example** - Concrete input/output examples
-7. **Safety & Reliability** - Error handling, validation, and security considerations
+2. **Required Libraries** - Dependencies and version requirements
+3. **Imports and Decorators** - Code imports and MCP tool decorators
+4. **Intended Use** - Primary use cases and applications
+5. **Out-of-Scope / Limitations** - What the tool doesn't do and its constraints
+6. **Input Schema** - JSON schema for tool inputs
+7. **Output Schema** - JSON schema for tool outputs
+8. **Example** - Concrete input/output examples
+9. **Safety & Reliability** - Error handling, validation, and security considerations
 
 ## Usage
 

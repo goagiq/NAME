@@ -8,6 +8,25 @@ General Info
     Author: Example Dev Team
     Description: Retrieves current weather data for a given location.
 
+Required Libraries
+
+    requests>=2.25.0
+    json
+    logging
+    typing (Dict, List, Any, Optional)
+
+Imports and Decorators
+
+    import requests
+    import json
+    import logging
+    from typing import Dict, Any
+
+    logger = logging.getLogger(__name__)
+
+    # MCP Tool Decorator (if applicable)
+    # @tool("get_weather_data")
+
 Intended Use
 
     For conversational agents needing lightweight, real-time weather.

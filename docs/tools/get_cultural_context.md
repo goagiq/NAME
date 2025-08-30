@@ -8,6 +8,23 @@ General Info
     Author: NAME System Team
     Description: Provides detailed cultural context information for specific combinations of race, religion, and location.
 
+Required Libraries
+
+    json
+    logging
+    typing (Dict, List, Any, Optional)
+
+Imports and Decorators
+
+    import json
+    import logging
+    from typing import Dict, List, Any, Optional
+
+    logger = logging.getLogger(__name__)
+
+    # MCP Tool Decorator (if applicable)
+    # @tool("get_cultural_context")
+
 Intended Use
 
     For applications needing cultural background information for name generation.
