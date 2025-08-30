@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 class OllamaCulturalService:
     """Service for generating culturally appropriate names using Ollama LLM."""
     
-    def __init__(self, model_name: str = "llama3.1:8b", base_url: str = "http://localhost:11434"):
+    def __init__(self, model_name: str = "phi3:mini", base_url: str = "http://localhost:11434"):
         self.model_name = model_name
         self.base_url = base_url
-        self.api_url = f"{base_url}/api/generate"
+        self.api_url = f"{base_url}/api/chat"  # Switch to chat API
         
     def generate_cultural_names(self, request_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
@@ -67,39 +67,42 @@ class OllamaCulturalService:
     def _create_cultural_prompt(self, data: Dict[str, Any]) -> str:
         """Create a detailed prompt for cultural name generation with enhanced cultural weighting."""
         
-        # Extract and prioritize cultural parameters
-        race = data.get('race', 'Unknown').lower()
-        religion = data.get('religion', 'Unknown').lower()
-        location = data.get('location', 'Unknown').lower()
-        birth_country = data.get('birth_country', '').lower()
-        sex = data.get('sex', 'person')
-        age = data.get('age', 'Unknown')
-        birth_year = data.get('birth_year', 'Unknown')
+        # Extract and prioritize cultural parameters with null safety
+        race = (data.get('race') or 'Unknown').lower()
+        religion = (data.get('religion') or 'Unknown').lower()
+        location = (data.get('location') or 'Unknown').lower()
+        birth_country = (data.get('birth_country') or '').lower()
+        sex = data.get('sex') or 'person'
+        age = data.get('age') or 'Unknown'
+        birth_year = data.get('birth_year') or 'Unknown'
         
         # Enhanced cultural context analysis
         cultural_context = self._analyze_cultural_context(race, religion, location, birth_country)
         
-        # Base prompt with enhanced cultural weighting
-        prompt = f"""CRITICAL: Generate 5 culturally authentic names for a {sex} from {race} culture.
+        # Optimized prompt for faster generation
+        prompt = f"""Generate 5 authentic {race} names for a {age}yo {sex} {religion} from {location}.
 
-CULTURAL PARAMETERS (HIGHEST PRIORITY):
-- Race/Ethnicity: {race} (PRIMARY CULTURAL DRIVER)
-- Religion: {religion} (RELIGIOUS NAMING TRADITIONS)
-- Location: {location} (GEOGRAPHIC CONTEXT)
-- Birth Country: {birth_country} (ORIGIN CONTEXT)
-- Age: {age} years old (GENERATIONAL CONTEXT)
-- Birth Year: {birth_year} (HISTORICAL CONTEXT)
+Key: {race} culture, {religion} background, born {birth_year} in {birth_country or location}.
 
-CULTURAL ANALYSIS:
 {cultural_context}
 
-STRICT REQUIREMENTS:
-1. Names MUST be authentic to {race} culture - NO Western/English names
-2. Consider {religion} religious naming traditions
-3. Use common {race} first names, middle names, and surnames
-4. Names should be appropriate for {age} year old born in {birth_year}
-5. Consider geographic context of {location}
-6. If {birth_country} is specified, prioritize names from that origin"""
+Requirements:
+- Authentic {race} names only
+- Consider {religion} traditions
+- Age-appropriate for {birth_year}
+- Include first, middle, last names
+
+Respond with ONLY this JSON structure:
+{{
+  "identities": [
+    {{
+      "first_name": "string",
+      "middle_name": "string", 
+      "last_name": "string",
+      "cultural_notes": "string"
+    }}
+  ]
+}}"""
         
         # Add feedback context if available
         feedback_context = data.get('feedback_context')
@@ -243,26 +246,33 @@ Respond with ONLY this JSON structure (no other text):
         return validated_identities
     
     def _call_ollama(self, prompt: str) -> str:
-        """Call Ollama API with the prompt with improved timeout handling."""
+        """Call Ollama API with chat format for better compatibility."""
         
         payload = {
             "model": self.model_name,
-            "prompt": prompt,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
             "stream": False,
             "options": {
-                "temperature": 0.7,
+                "temperature": 0.8,
                 "top_p": 0.9,
-                "num_predict": 2048  # Limit response length
+                "num_predict": 1024,  # Reduced for faster response
+                "top_k": 40,  # Add top_k for better performance
+                "repeat_penalty": 1.1  # Prevent repetition
             }
         }
         
         try:
-            # Increased timeout for complex cultural analysis
-            response = requests.post(self.api_url, json=payload, timeout=30)
+            # Reduced timeout for better UX
+            response = requests.post(self.api_url, json=payload, timeout=15)
             response.raise_for_status()
             
             result = response.json()
-            return result.get('response', '')
+            return result.get('message', {}).get('content', '')
             
         except requests.exceptions.Timeout:
             logger.error("Ollama API timeout - request took too long")
@@ -295,6 +305,10 @@ Respond with ONLY this JSON structure (no other text):
             
             if json_start != -1 and json_end > json_start:
                 json_str = cleaned_response[json_start:json_end]
+                
+                # Clean up common JSON formatting issues
+                json_str = self._clean_json_string(json_str)
+                
                 logger.info(f"Attempting to parse JSON: {json_str[:200]}...")
                 parsed_data = json.loads(json_str)
                 
@@ -370,6 +384,45 @@ Respond with ONLY this JSON structure (no other text):
         # If parsing fails, return fallback
         logger.warning("Using fallback names due to parsing error")
         return self._generate_fallback_names(request_data)
+    
+    def _clean_json_string(self, json_str: str) -> str:
+        """Clean up common JSON formatting issues from LLM responses."""
+        import re
+        
+        # Remove extra whitespace and newlines
+        json_str = re.sub(r'\s+', ' ', json_str)
+        
+        # Fix missing quotes around property names
+        json_str = re.sub(r'(\w+):', r'"\1":', json_str)
+        
+        # Fix trailing commas
+        json_str = re.sub(r',(\s*[}\]])', r'\1', json_str)
+        
+        # Fix incomplete objects
+        json_str = re.sub(r',\s*}', r'}', json_str)
+        json_str = re.sub(r',\s*]', r']', json_str)
+        
+        # Remove comments and extra data (like "0.5, // Middle name...")
+        json_str = re.sub(r',\s*\d+\.?\d*\s*,?\s*//.*?(?=,|}|])', r'', json_str)
+        json_str = re.sub(r',\s*//.*?(?=,|}|])', r'', json_str)
+        
+        # Fix malformed entries in arrays
+        json_str = re.sub(r'{\s*"[^"]*"\s*[^}]*[^}]*\s*},', r'', json_str)
+        
+        # Remove any incomplete objects at the end
+        json_str = re.sub(r',\s*{[^}]*$', r'', json_str)
+        
+        # Remove extra data after the main JSON object
+        json_str = re.sub(r'}\s*,\s*"[^"]*"\s*:.*$', r'}', json_str, flags=re.DOTALL)
+        
+        # Ensure the JSON is complete
+        if not json_str.strip().endswith('}'):
+            # Try to find the last complete object
+            last_brace = json_str.rfind('}')
+            if last_brace > 0:
+                json_str = json_str[:last_brace + 1]
+        
+        return json_str
     
     def _generate_fallback_names(self, request_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate fallback names if Ollama fails."""

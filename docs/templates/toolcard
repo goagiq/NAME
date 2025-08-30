@@ -1,0 +1,75 @@
+Tool Card: get_weather_data
+
+General Info
+
+    Name: get_weather_data
+    Title: Weather Data Retriever
+    Version: 1.0.0
+    Author: Example Dev Team
+    Description: Retrieves current weather data for a given location.
+
+Intended Use
+
+    For conversational agents needing lightweight, real-time weather.
+    Read-only access; no side effects.
+
+Out-of-Scope / Limitations
+
+    Only supports city names and ZIP codes.
+    Limited to current weather; no forecast.
+    Requires external API key.
+
+Input Schema
+
+{
+
+  "type": "object",
+
+  "properties": {
+
+    "location": { "type": "string", "description": "City or ZIP" },
+
+    "units": { "type": "string", "enum": ["metric","imperial"], "default": "metric" }
+
+  },
+
+  "required": ["location"]
+
+}
+
+Output Schema
+
+{
+
+  "type": "object",
+
+  "properties": {
+
+    "temperature": { "type": "number", "description": "°C or °F" },
+
+    "conditions": { "type": "string" },
+
+    "humidity": { "type": "number" }
+
+  },
+
+  "required": ["temperature","conditions","humidity"]
+
+}
+
+Example
+
+    Input:
+    { "location": "Baltimore", "units": "imperial" }
+    Output:
+    {
+      "temperature": 72.5,
+      "conditions": "Partly Cloudy",
+      "humidity": 65
+    }
+
+Safety & Reliability
+
+    Validates inputs against schema.
+    Returns error if location cannot be resolved.
+    No PII collected; logs disabled.

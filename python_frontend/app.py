@@ -7,13 +7,17 @@ from flask import Flask, render_template, request, jsonify
 import logging
 import sys
 import os
+import requests
+import json
 from datetime import datetime
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# Import the Ollama service
+# Import the optimized Ollama service
 from services.ollama_cultural_service import OllamaCulturalService
+# Import the enhanced Strands service (commented out until we fix the import)
+# from services.strands_ollama_service import StrandsOllamaService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,10 +28,15 @@ app = Flask(__name__)
 # Initialize Ollama service with error handling
 try:
     ollama_service = OllamaCulturalService()
+    # strands_service = StrandsOllamaService()  # Commented out until we fix the import
     logger.info("Ollama service initialized successfully")
+    # logger.info("Strands service initialized successfully")
 except Exception as e:
     logger.error(f"Failed to initialize Ollama service: {e}")
     ollama_service = None
+
+# MCP Server URL
+MCP_SERVER_URL = "http://localhost:8500"
 
 @app.route('/')
 def index():
@@ -36,6 +45,149 @@ def index():
 @app.route('/api/health')
 def health():
     return jsonify({"status": "healthy", "message": "Python frontend is running"})
+
+# MCP Tool Integration Endpoints
+@app.route('/api/mcp/tools', methods=['GET'])
+def list_mcp_tools():
+    """List available MCP tools."""
+    try:
+        response = requests.get(f"{MCP_SERVER_URL}/mcp", timeout=10)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except Exception as e:
+        logger.error(f"Error listing MCP tools: {e}")
+        return jsonify({"error": f"Failed to list MCP tools: {str(e)}"}), 500
+
+@app.route('/api/mcp/call', methods=['POST'])
+def call_mcp_tool():
+    """Call an MCP tool."""
+    try:
+        data = request.get_json()
+        tool_name = data.get('tool_name')
+        arguments = data.get('arguments', {})
+        
+        if not tool_name:
+            return jsonify({"error": "tool_name is required"}), 400
+        
+        # Call the MCP server
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": tool_name,
+                "arguments": arguments
+            }
+        }
+        
+        response = requests.post(f"{MCP_SERVER_URL}/mcp", json=payload, timeout=30)
+        response.raise_for_status()
+        
+        return jsonify(response.json())
+        
+    except Exception as e:
+        logger.error(f"Error calling MCP tool: {e}")
+        return jsonify({"error": f"Failed to call MCP tool: {str(e)}"}), 500
+
+@app.route('/api/mcp/generate-cultural-names', methods=['POST'])
+def generate_cultural_names_mcp():
+    """Generate cultural names using MCP tools."""
+    try:
+        data = request.get_json()
+        
+        # Call the MCP generate_cultural_names tool
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "generate_cultural_names",
+                "arguments": {
+                    "sex": data.get("sex"),
+                    "age": int(data.get("age", 25)),
+                    "location": data.get("location"),
+                    "occupation": data.get("occupation"),
+                    "race": data.get("race"),
+                    "religion": data.get("religion"),
+                    "birth_year": int(data.get("birth_year", 1999))
+                }
+            }
+        }
+        
+        response = requests.post(f"{MCP_SERVER_URL}/mcp", json=payload, timeout=30)
+        response.raise_for_status()
+        
+        return jsonify(response.json())
+        
+    except Exception as e:
+        logger.error(f"Error generating cultural names via MCP: {e}")
+        return jsonify({"error": f"Failed to generate names: {str(e)}"}), 500
+
+@app.route('/api/mcp/validate-names', methods=['POST'])
+def validate_names_mcp():
+    """Validate names using MCP tools."""
+    try:
+        data = request.get_json()
+        names = data.get("names", [])
+        
+        if not names:
+            return jsonify({"error": "names array is required"}), 400
+        
+        # Call the MCP validate_names_watchlist tool
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "validate_names_watchlist",
+                "arguments": {
+                    "names": names
+                }
+            }
+        }
+        
+        response = requests.post(f"{MCP_SERVER_URL}/mcp", json=payload, timeout=30)
+        response.raise_for_status()
+        
+        return jsonify(response.json())
+        
+    except Exception as e:
+        logger.error(f"Error validating names via MCP: {e}")
+        return jsonify({"error": f"Failed to validate names: {str(e)}"}), 500
+
+@app.route('/api/mcp/cultural-context', methods=['POST'])
+def get_cultural_context_mcp():
+    """Get cultural context using MCP tools."""
+    try:
+        data = request.get_json()
+        region = data.get("region")
+        religion = data.get("religion")
+        
+        if not region or not religion:
+            return jsonify({"error": "region and religion are required"}), 400
+        
+        # Call the MCP get_cultural_context tool
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "get_cultural_context",
+                "arguments": {
+                    "region": region,
+                    "religion": religion
+                }
+            }
+        }
+        
+        response = requests.post(f"{MCP_SERVER_URL}/mcp", json=payload, timeout=30)
+        response.raise_for_status()
+        
+        return jsonify(response.json())
+        
+    except Exception as e:
+        logger.error(f"Error getting cultural context via MCP: {e}")
+        return jsonify({"error": f"Failed to get cultural context: {str(e)}"}), 500
 
 @app.route('/api/generate-identity', methods=['POST'])
 def generate_identity():
@@ -73,6 +225,7 @@ def generate_identity():
             logger.error("Ollama service not available, using fallback")
             return jsonify({"error": "Ollama service not available"}), 500
             
+        # Generate names using Ollama service
         logger.info(f"Generating names using Ollama for: {request_data}")
         identities = ollama_service.generate_cultural_names(request_data)
         
